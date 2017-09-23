@@ -12,7 +12,7 @@ uniform float hexes_scale:hint_range(1,100);
 
 float linearize(float val) {
     val = 2.0 * val - 1.0;
-    val = 2.0 * near_far[0] * near_far[1] / (near_far[1] + near_far[0] - val * (near_far[1] - near_far[0]));
+    //val = 2.0 * near_far[0] * near_far[1] / (near_far[1] + near_far[0] - val * (near_far[1] - near_far[0]));
     return val;
 }
 
@@ -21,7 +21,10 @@ float tri_wave(float t, float offset, float y_offset) {
 }
 
 void fragment() {
-    float zdepth = linearize(texture(DEPTH_TEXTURE, SCREEN_UV).r);
+    float zdepth = linearize(textureLod(DEPTH_TEXTURE, SCREEN_UV, 0.0).r);
+    //calculating real world pos
+    vec4 w_pos = INV_CAMERA_MATRIX * vec4(SCREEN_UV * 2.0 - 1.0, textureLod(DEPTH_TEXTURE, SCREEN_UV, 0.0).r * 2.0 - 1.0, 1.0);
+    w_pos.xyz /= w_pos.w;
     float zpos = linearize(FRAGCOORD.z);
     float diff = zdepth - zpos;
     float intersect = 0.0;
